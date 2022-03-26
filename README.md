@@ -1,24 +1,13 @@
-# chat_app
+# Torol
 
-## Project setup
-```
-npm install
-```
+## 概要
+失敗したことを吐露しよう。
+みんなの失敗談を見たり、自分で投稿したり
+どんまいボタンを押して、励ましあって
+今日は、明日こそ、明後日でも
+いつでもいいから
+少しだけ、がんばりましょう。
+そんな掲示板 ” トロル ” です。
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
-
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+## URL
+https://torol-b74eb.web.app/
