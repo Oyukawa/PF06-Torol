@@ -18,17 +18,17 @@
             <v-card>
               <v-banner class ='justify-center py-1'>{{ card }}</v-banner>
               <v-card-text>
-                <template v-for="(data, index) in messages">
-                    <div :key="index" value="index">
+                <template v-for="(data, indexId) in messages">
+                    <div :key="indexId" value="indexId">
                       <div class="message py-2">
                         {{ data.uname }}：{{ data.date.toDate().toLocaleString()}}<br>{{ data.umsg }}
                         <h4 class= cadDmd>
-                          <v-btn color="primary" fab plain raised x-small class="mx-1" v-bind:style="{background: btnDnm}" @click="donotMind(index,data.udomd)"><v-icon>mdi-thumb-up</v-icon></v-btn>
+                          <v-btn color="primary" fab plain raised x-small class="mx-1" v-bind:style="{background: btnDnm}" @click="donotMind(indexId,data.udomd)"><v-icon>mdi-thumb-up</v-icon></v-btn>
                           {{ data.udomd }}どんまい
                         </h4>
                       </div>
                     </div>
-                  <v-divider :key="`divider-${index}`"></v-divider>
+                  <v-divider :key="`divider-${indexId}`"></v-divider>
                 </template>
               </v-card-text>
             </v-card>
@@ -53,43 +53,45 @@ import {doc, addDoc,updateDoc, Timestamp, onSnapshot} from "firebase/firestore"
       setMsg: '',
       setDnm:[],
       cards: ['ʔ-̫͡-ʔʕ•̫͡•ʕ*̫͡*ʕ•͓͡•ʕ~やさしい世界~ʕ•̫͡•ʕ*̫͡*ʕ•͓͡•ʔ-̫͡-ʕ'],
-      drawer: null,
-      upCounter: 0,
       btnTro:'dodgerblue',
       btnUpd:'',
       btnDnm:'',
-      AA:[],
-      BB:[]
+      countRead: 0,
+      countFirst:[],
+      countUpd:[]
     }),
 
     created(){
       const disPlayMsg = this.messages
       const getId = this.setId
       const getDnm = this.setDnm
-      const setAA = this.AA
-      const setBB = this.BB
-      let upc = this.upCounter
+      const setCf = this.countFirst
+      const setCu = this.countUpd
+      let counter = this.countRead
         
         onSnapshot(chatSort,function(snapshot){   
           /*Firebaseからデータを取得し配列messagesに追加。
             Firebaseで追加されたデータも追加する。*/
-          // 初期処理のみ実行するためカウンターで制御
-          if (upc == 0){
+          // 初期処理だけFirebaseか読み込むようにカウンターで制御
+          if (counter == 0){
             snapshot.forEach(doc =>{
               disPlayMsg.push(doc.data())
+              /* どんまいボタン更新用にIDを配列にセット。
+                 初期処理にて画面上に払いだされたindexIdと配列番号で更新先を紐づける。*/
               getId.push(doc.id)
+              // どんまいボタン押下制御用に読み込み時のどんまい数を配列にセット
               getDnm.push(doc.data().udomd)
             });
           }
-          if(upc == 0){
-            upc = 1
+          if(counter == 0){
+            counter = 1
             // 初期カウンターセット
-            setAA.push(upc)
+            setCf.push(counter)
             // 更新カウンターセット
-            setBB.push(upc)
+            setCu.push(counter)
           } else {
             // 2回目の更新以降
-            setBB.push(upc)
+            setCu.push(counter)
           }
       });
     },
@@ -97,8 +99,8 @@ import {doc, addDoc,updateDoc, Timestamp, onSnapshot} from "firebase/firestore"
     watch: {
       /* 更新カウンターが初期のカウンター数より大きくなった場合
       （情報に更新が発生した場合）ボタンの色を変更する。*/
-      BB:function(){
-        if(this.BB.length > this.AA.length){
+      countUpd:function(){
+        if(this.countUpd.length > this.countFirst.length){
           this.btnUpd = 'deepskyblue'
         }
       },
@@ -134,16 +136,18 @@ import {doc, addDoc,updateDoc, Timestamp, onSnapshot} from "firebase/firestore"
       },
 
       /* どんまいボタン */
-      donotMind(indexValue,setDoMd){
+      donotMind(indexId,setDoMd){
         setDoMd ++;
-        if(setDoMd - this.setDnm[indexValue] == 1){
+        /* 連続押下の制御 */
+        // 初期処理時にセットしたどんまい数と画面上のどんまい数の差が-１の場合、Firestoreの値を更新
+        if(setDoMd - this.setDnm[indexId] == 1){
           // Firestoreの値を更新
-          const docRef = doc(db, "chats", this.setId[indexValue]);
+          const docRef = doc(db, "chats", this.setId[indexId]);
             updateDoc(docRef, {
             udomd: setDoMd
           });
           // 画面の値を更新
-          this.messages[indexValue].udomd = setDoMd         
+          this.messages[indexId].udomd = setDoMd         
         }
       },
       
